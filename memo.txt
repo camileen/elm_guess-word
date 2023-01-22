@@ -1,0 +1,11 @@
+GOAL : Develop a web app game = guessing a word based on its definition
+
+EXAMPLE : https://perso.liris.cnrs.fr/tristan.roussillon/GuessIt/
+
+TASKS :
+1) Display all the words in the page
+2) Display one word randomly choosed
+3) Display its definitions
+4) Add user interactions
+
+DETAILS OF THE PROJECT :  https://github.com/troussil/elp/blob/master/elm/projet/README.md
