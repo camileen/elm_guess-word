@@ -1,6 +1,6 @@
 module GuessWord exposing (..)
 
-import Json.Decode exposing (Decoder, list, string)
+import Json.Decode exposing (Decoder, list, string, map2, field)
 import Html exposing (Html, div, text)
 import Random.List
 import Browser
@@ -9,10 +9,11 @@ import Http
 
 
 
+
 -- MAIN
 
 
-main : Program () Model Msg
+main : Program () (Model a) Msg
 main =
   Browser.element
     { init = init
@@ -27,16 +28,24 @@ main =
 
 
 -- Model : states of HTTP request for remote JSON file
-type Model
+type Model a
   = Failure
   | Loading
   | Success Words
   | RandWord Word
+  | Definitions (List (List Meaning))
 
 type alias Words = (List String)
 type alias Word = String
+type alias Meaning = 
+  { nature : String
+  , definitions : List Def
+  }
+type alias Def = String
 
-init : () -> (Model, Cmd Msg)
+  
+
+init : () -> (Model a, Cmd Msg)
 init _ = 
   (Loading, getWords)
 
@@ -48,8 +57,8 @@ init _ =
 type Msg
   = GotWords (Result Http.Error Words)
   | ChooseWord (Maybe Word, Words)
-
-update : Msg -> Model -> (Model, Cmd Msg)
+  | GotDef (Result Http.Error (List (List Meaning)))
+update : Msg -> Model a -> (Model a, Cmd Msg)
 update msg model =
   case msg of
       GotWords result ->
@@ -65,16 +74,24 @@ update msg model =
       ChooseWord (maybeWord, words) ->
         case maybeWord of
           Just word ->
-            (RandWord word, Cmd.none)
+            (RandWord word, getDef word)
           Nothing ->
             (Failure, Cmd.none)
+      
+      GotDef result ->
+        case result of
+            Ok def ->
+              (Definitions def, Cmd.none)
+            
+            Err error ->
+              (Failure, Cmd.none)
         
 
 
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model -> Sub Msg
+subscriptions : Model a -> Sub Msg
 subscriptions model =
     Sub.none
 
@@ -83,7 +100,7 @@ subscriptions model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model a -> Html Msg
 view model =
   case model of
       Failure ->
@@ -100,7 +117,11 @@ view model =
       
       RandWord word ->
         div []
-          [ text word ]
+          [ text "Got word, looking for its definitions..." ]
+
+      Definitions def ->
+        div []
+          [ text "Got def!"]
         
 
 
@@ -118,3 +139,25 @@ wordsDecoder : Decoder Words
 wordsDecoder =
   (list string)
 
+getDef : Word -> Cmd Msg
+getDef word =
+  Http.get
+    { url = "https://api.dictionaryapi.dev/api/v2/entries/en/" ++ word
+    , expect = Http.expectJson GotDef decoder
+    }
+
+decoder : Decoder (List (List Meaning))
+decoder =
+ list (field "meanings" meaningDecoder)
+
+meaningDecoder : Decoder (List Meaning)
+meaningDecoder =
+  list 
+    ( map2 Meaning
+        (field "partOfSpeech" string)
+        (field "definitions" defDecoder)
+    )
+
+defDecoder : Decoder (List Def)
+defDecoder =
+  list (field "definition" string)
