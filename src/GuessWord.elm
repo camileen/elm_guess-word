@@ -117,11 +117,35 @@ view model =
       
       RandWord word ->
         div []
-          [ text "Got word, looking for its definitions..." ]
+          [ text word ]
 
       Definitions def ->
         div []
-          [ text "Got def!"]
+          [ viewHelper def ]
+
+viewHelper : (List (List Meaning)) -> Html Msg
+viewHelper definitions =
+  div []
+    [ text "Meaning:"
+    , div [] (List.map viewMeanings definitions)
+    ]
+
+viewMeanings : (List Meaning) -> Html Msg
+viewMeanings meanings = 
+  div []
+    [ div [] (List.map viewMeaning meanings) ]
+
+viewMeaning : Meaning -> Html Msg
+viewMeaning meaning =
+  div []
+    [ div [] [ text meaning.nature ]
+    , div [] (List.map viewDef meaning.definitions) 
+    ]
+
+viewDef : String -> Html Msg
+viewDef def =
+  div [] [ text def ]
+
         
 
 
@@ -142,7 +166,7 @@ wordsDecoder =
 getDef : Word -> Cmd Msg
 getDef word =
   Http.get
-    { url = "https://api.dictionaryapi.dev/api/v2/entries/en/" ++ word
+    { url = "https://api.dictionaryapi.dev/api/v2/entries/en/center"
     , expect = Http.expectJson GotDef decoder
     }
 
