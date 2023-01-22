@@ -82,7 +82,7 @@ view model =
 
       Success words ->
         div []
-          [ text "Some text" ]
+          [ text (String.join " " words) ]
 
 
 
