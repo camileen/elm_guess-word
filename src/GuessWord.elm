@@ -1,6 +1,7 @@
 module GuessWord exposing (..)
 
 import Html exposing (Html, div, text)
+import Json.Decode exposing (Decoder, list, string)
 import Browser
 import Http
 
@@ -33,7 +34,7 @@ type alias Words = (List String)
 
 init : () -> (Model, Cmd Msg)
 init _ = 
-  (Loading, Cmd.none)
+  (Loading, getWords)
 
 
 
@@ -86,4 +87,15 @@ view model =
 
 
 -- HTTP
+
+getWords : Cmd Msg
+getWords =
+  Http.get
+    { url = "http://localhost:5000/words"
+    , expect = Http.expectJson GotWords wordsDecoder
+    }
+
+wordsDecoder : Decoder Words
+wordsDecoder =
+  (list string)
 

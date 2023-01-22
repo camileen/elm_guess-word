@@ -8,4 +8,8 @@ TASKS :
 3) Display its definitions
 4) Add user interactions
 
+REQUIRED ELM MODULES :
+- elm/http
+- elm/json
+
 DETAILS OF THE PROJECT :  https://github.com/troussil/elp/blob/master/elm/projet/README.md
