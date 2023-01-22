@@ -3,14 +3,16 @@ GOAL : Develop a web app game = guessing a word based on its definition
 EXAMPLE : https://perso.liris.cnrs.fr/tristan.roussillon/GuessIt/
 
 TASKS :
-1) Display all the words in the page --> DONE !
-2) Display one word randomly choosed
+1) Display all the words in the page --> DONE!
+2) Display one word randomly choosed --> DONE!
 3) Display its definitions
 4) Add user interactions
 
 REQUIRED ELM MODULES :
 - elm/http
 - elm/json
+- elm/json
+- elm-community/random-extra
 
 NEED JSON LOCAL SERVER :
 | npm install json-server -g (if not already installed)

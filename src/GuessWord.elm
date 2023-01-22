@@ -1,8 +1,10 @@
 module GuessWord exposing (..)
 
-import Html exposing (Html, div, text)
 import Json.Decode exposing (Decoder, list, string)
+import Html exposing (Html, div, text)
+import Random.List
 import Browser
+import Random
 import Http
 
 
@@ -29,8 +31,10 @@ type Model
   = Failure
   | Loading
   | Success Words
+  | RandWord Word
 
 type alias Words = (List String)
+type alias Word = String
 
 init : () -> (Model, Cmd Msg)
 init _ = 
@@ -43,6 +47,7 @@ init _ =
 
 type Msg
   = GotWords (Result Http.Error Words)
+  | ChooseWord (Maybe Word, Words)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -50,11 +55,20 @@ update msg model =
       GotWords result ->
         case result of
             Ok words ->
-              (Success words, Cmd.none)
+              (Success words
+              , Random.generate ChooseWord (Random.List.choose words)
+              )
             
             Err error ->
               (Failure, Cmd.none)
-
+      
+      ChooseWord (maybeWord, words) ->
+        case maybeWord of
+          Just word ->
+            (RandWord word, Cmd.none)
+          Nothing ->
+            (Failure, Cmd.none)
+        
 
 
 -- SUBSCRIPTIONS
@@ -82,7 +96,12 @@ view model =
 
       Success words ->
         div []
-          [ text (String.join " " words) ]
+          [ text "Choosing a random word..." ]
+      
+      RandWord word ->
+        div []
+          [ text word ]
+        
 
 
 
