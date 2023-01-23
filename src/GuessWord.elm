@@ -133,11 +133,20 @@ view model =
         div []
           [ viewHelper model.definitions
           , input [ placeholder "Did you guess the word?", value model.userInput, onInput User] []
+          , div [] [ text (checkInput model.userInput model.word) ]
           ]
   else 
     div []
           [ text "An error occured..." ]
 
+checkInput : String -> Word -> String
+checkInput input word =
+  if input == word then
+    "That's it!"
+  else if String.isEmpty input then
+    "Enter something, don't be scared!"
+  else
+    "Wrong..."
 
 
 viewHelper : (List (List Meaning)) -> Html Msg
