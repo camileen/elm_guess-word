@@ -72,7 +72,7 @@ type Msg
   = GotWords (Result Http.Error Words)
   | ChooseWord (Maybe Word, Words)
   | GotDef (Result Http.Error (List (List Meaning)))
-  | Change String
+  | User String
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
@@ -101,7 +101,7 @@ update msg model =
             Err error ->
               ({ model | failure = True }, Cmd.none)
 
-      Change userInput ->
+      User userInput ->
         ({ model | userInput = userInput }, Cmd.none)
         
 
@@ -132,6 +132,7 @@ view model =
     else
         div []
           [ viewHelper model.definitions
+          , input [ placeholder "Did you guess the word?", value model.userInput, onInput User] []
           ]
   else 
     div []
