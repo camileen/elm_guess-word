@@ -1,7 +1,9 @@
 module GuessWord exposing (..)
 
 import Json.Decode exposing (Decoder, list, string, map2, field)
-import Html exposing (Html, div, text)
+import Html.Attributes exposing (placeholder, value)
+import Html exposing (Html, div, text, input)
+import Html.Events exposing (onInput)
 import Random.List
 import Browser
 import Random
@@ -13,7 +15,7 @@ import Http
 -- MAIN
 
 
-main : Program () (Model a) Msg
+main : Program () Model Msg
 main =
   Browser.element
     { init = init
@@ -28,12 +30,14 @@ main =
 
 
 -- Model : states of HTTP request for remote JSON file
-type Model a
-  = Failure
-  | Loading
-  | Success Words
-  | RandWord Word
-  | Definitions (List (List Meaning))
+type alias Model =
+  { failure : Bool
+  , loading : Bool
+  , success : Words
+  , word : Word
+  , definitions : (List (List Meaning))
+  , userInput : String
+  }
 
 type alias Words = (List String)
 type alias Word = String
@@ -43,11 +47,21 @@ type alias Meaning =
   }
 type alias Def = String
 
+
   
 
-init : () -> (Model a, Cmd Msg)
+init : () -> (Model, Cmd Msg)
 init _ = 
-  (Loading, getWords)
+  (
+    { failure = False
+    , loading = True
+    , success = []
+    , word = ""
+    , definitions = []
+    , userInput = ""
+    }
+  , getWords
+  )
 
 
 
@@ -58,40 +72,44 @@ type Msg
   = GotWords (Result Http.Error Words)
   | ChooseWord (Maybe Word, Words)
   | GotDef (Result Http.Error (List (List Meaning)))
-update : Msg -> Model a -> (Model a, Cmd Msg)
+  | Change String
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
       GotWords result ->
         case result of
             Ok words ->
-              (Success words
+              ({ model | success = words }
               , Random.generate ChooseWord (Random.List.choose words)
               )
             
             Err error ->
-              (Failure, Cmd.none)
+              ({ model | failure = True }, Cmd.none)
       
       ChooseWord (maybeWord, words) ->
         case maybeWord of
           Just word ->
-            (RandWord word, getDef word)
+            ({ model | word = word }, getDef word)
           Nothing ->
-            (Failure, Cmd.none)
+            ({ model | failure = True }, Cmd.none)
       
       GotDef result ->
         case result of
             Ok def ->
-              (Definitions def, Cmd.none)
+              ({ model | definitions = def }, Cmd.none)
             
             Err error ->
-              (Failure, Cmd.none)
+              ({ model | failure = True }, Cmd.none)
+
+      Change userInput ->
+        ({ model | userInput = userInput }, Cmd.none)
         
 
 
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model a -> Sub Msg
+subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
 
@@ -99,29 +117,27 @@ subscriptions model =
 
 -- VIEW
 
-
-view : Model a -> Html Msg
+view : Model -> Html Msg
 view model =
-  case model of
-      Failure ->
-        div []
-          [ text "An error occured..." ]
-      
-      Loading ->
-        div []
-          [ text "Loading..." ]
-
-      Success words ->
+  if model.loading then
+    if List.isEmpty model.success then
+      div []
+        [ text "Loading..." ]
+    else if String.isEmpty model.word then
         div []
           [ text "Choosing a random word..." ]
-      
-      RandWord word ->
+    else if List.isEmpty model.definitions then
+            div []
+              [ text "Looking for a definition..." ]
+    else
         div []
-          [ text word ]
+          [ viewHelper model.definitions
+          ]
+  else 
+    div []
+          [ text "An error occured..." ]
 
-      Definitions def ->
-        div []
-          [ viewHelper def ]
+
 
 viewHelper : (List (List Meaning)) -> Html Msg
 viewHelper definitions =
@@ -166,7 +182,7 @@ wordsDecoder =
 getDef : Word -> Cmd Msg
 getDef word =
   Http.get
-    { url = "https://api.dictionaryapi.dev/api/v2/entries/en/center"
+    { url = "https://api.dictionaryapi.dev/api/v2/entries/en/" ++ word
     , expect = Http.expectJson GotDef decoder
     }
 

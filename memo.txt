@@ -5,7 +5,7 @@ EXAMPLE : https://perso.liris.cnrs.fr/tristan.roussillon/GuessIt/
 TASKS :
 1) Display all the words in the page --> DONE!
 2) Display one word randomly choosed --> DONE!
-3) Display its definitions
+3) Display its definitions --> DONE !
 4) Add user interactions
 
 REQUIRED ELM MODULES :
