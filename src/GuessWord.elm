@@ -1,9 +1,9 @@
 module GuessWord exposing (..)
 
-import Json.Decode exposing (Decoder, list, string, map2, field)
-import Html.Attributes exposing (placeholder, value)
+import Json.Decode as JD exposing (Decoder, list, string, map2, field)
+import Html.Attributes exposing (..)
 import Html exposing (Html, div, text, input)
-import Html.Events exposing (onInput)
+import Html.Events as HE exposing (onInput)
 import Random.List
 import Browser
 import Random
@@ -37,6 +37,7 @@ type alias Model =
   , word : Word
   , definitions : (List (List Meaning))
   , userInput : String
+  , checkBox : Bool
   }
 
 type alias Words = (List String)
@@ -59,6 +60,7 @@ init _ =
     , word = ""
     , definitions = []
     , userInput = ""
+    , checkBox = False
     }
   , getWords
   )
@@ -73,6 +75,7 @@ type Msg
   | ChooseWord (Maybe Word, Words)
   | GotDef (Result Http.Error (List (List Meaning)))
   | User String
+  | CheckBox Bool
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
@@ -103,6 +106,9 @@ update msg model =
 
       User userInput ->
         ({ model | userInput = userInput }, Cmd.none)
+      
+      CheckBox isChecked ->
+        ({ model | checkBox = isChecked }, Cmd.none)
         
 
 
@@ -134,6 +140,8 @@ view model =
           [ viewHelper model.definitions
           , input [ placeholder "Did you guess the word?", value model.userInput, onInput User] []
           , div [] [ text (checkInput model.userInput model.word) ]
+          , input [ type_ "checkbox", HE.onCheck CheckBox, checked model.checkBox ] []
+          , text (revealWord model.checkBox model.word)
           ]
   else 
     div []
@@ -147,6 +155,13 @@ checkInput input word =
     "Enter something, don't be scared!"
   else
     "Wrong..."
+
+revealWord : Bool -> String -> String
+revealWord isChecked word =
+  if isChecked then
+    "The word is: " ++ word
+  else  
+    "Check the box to reveal the word!"
 
 
 viewHelper : (List (List Meaning)) -> Html Msg
@@ -187,7 +202,7 @@ getWords =
 
 wordsDecoder : Decoder Words
 wordsDecoder =
-  (list string)
+  (JD.list string)
 
 getDef : Word -> Cmd Msg
 getDef word =
@@ -198,11 +213,11 @@ getDef word =
 
 decoder : Decoder (List (List Meaning))
 decoder =
- list (field "meanings" meaningDecoder)
+ JD.list (field "meanings" meaningDecoder)
 
 meaningDecoder : Decoder (List Meaning)
 meaningDecoder =
-  list 
+  JD.list 
     ( map2 Meaning
         (field "partOfSpeech" string)
         (field "definitions" defDecoder)
@@ -210,4 +225,4 @@ meaningDecoder =
 
 defDecoder : Decoder (List Def)
 defDecoder =
-  list (field "definition" string)
+  JD.list (field "definition" string)
