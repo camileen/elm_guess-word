@@ -6,6 +6,7 @@ Have fun!
 ## Requirements :
 **You will have to launch a local json server.**
 You can install the *json-server* package from npm with the following command: `npm install json-server -g`  
+You can use any other json server package but be aware that **you have to use port 5000** to play the game.
 
 **WARNING:** *json-server* requires at least version 12 of Node
 
