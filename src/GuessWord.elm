@@ -1,6 +1,6 @@
 module GuessWord exposing (..)
 
-import Json.Decode as JD exposing (Decoder, list, string, map2, field)
+import Json.Decode as JD exposing (Decoder, string, map2, field)
 import Html.Attributes exposing (..)
 import Html exposing (..)
 import Html.Events as HE exposing (onInput)
@@ -86,10 +86,10 @@ update msg model =
               , Random.generate ChooseWord (Random.List.choose words)
               )
             
-            Err error ->
+            Err _ ->
               ({ model | failure = True }, Cmd.none)
       
-      ChooseWord (maybeWord, words) ->
+      ChooseWord (maybeWord, _) ->
         case maybeWord of
           Just word ->
             ({ model | word = word }, getDef word)
@@ -101,7 +101,7 @@ update msg model =
             Ok def ->
               ({ model | definitions = def }, Cmd.none)
             
-            Err error ->
+            Err _ ->
               ({ model | failure = True }, Cmd.none)
 
       User userInput ->
@@ -116,7 +116,7 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -141,7 +141,7 @@ view model =
             [ viewHelper model.definitions
             ,div[]
               [p [ style "text-align" "center" ][strong [][text "The answer is: "]
-              ,input [ placeholder "Did you guess the word?", value model.userInput, onInput User] []
+              , input [ placeholder "Did you guess the word?", value model.userInput, onInput User] []
               , div [] [ text (checkInput model.userInput model.word) ]
               , p [ style "text-align" "left" ][input [ type_ "checkbox", HE.onCheck CheckBox, checked model.checkBox ] []
               , text (revealWord model.checkBox model.word)] ]]
@@ -172,7 +172,7 @@ viewHelper : (List (List Meaning)) -> Html Msg
 viewHelper definitions =
   div []
     [ul []
-      [ h2 [] [text "Word Game!"]
+      [ h2 [] [text "WORD GAME ^o^ !"]
       , h3 [] [ text "Meaning:" ] 
       , ul [] (List.map viewMeanings definitions)
       ]
