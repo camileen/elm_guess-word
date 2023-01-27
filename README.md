@@ -25,7 +25,7 @@ You can use any other json server package but be aware that **you have to use po
 
 
 ## Contributors :
-[Xinyi Zhao](https://github.com/Xinyi25) and [Camille Robinson](https://github.com/camileen)
+[Xinyi ZHAO](https://github.com/Xinyi25) and [Camille ROBINSON](https://github.com/camileen)
 
 ## Mentions :
 Specifications of the project can be found [here](https://github.com/camileen/elp/tree/master/elm/projet).
