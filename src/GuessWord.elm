@@ -1,6 +1,6 @@
 module GuessWord exposing (..)
 
-import Json.Decode as JD exposing (Decoder, list, string, map2, field)
+import Json.Decode as JD exposing (Decoder, string, map2, field)
 import Html.Attributes exposing (..)
 import Html exposing (Html, div, text, input)
 import Html.Events as HE exposing (onInput)
@@ -86,10 +86,10 @@ update msg model =
               , Random.generate ChooseWord (Random.List.choose words)
               )
             
-            Err error ->
+            Err _ ->
               ({ model | failure = True }, Cmd.none)
       
-      ChooseWord (maybeWord, words) ->
+      ChooseWord (maybeWord, _) ->
         case maybeWord of
           Just word ->
             ({ model | word = word }, getDef word)
@@ -101,7 +101,7 @@ update msg model =
             Ok def ->
               ({ model | definitions = def }, Cmd.none)
             
-            Err error ->
+            Err _ ->
               ({ model | failure = True }, Cmd.none)
 
       User userInput ->
@@ -116,7 +116,7 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
