@@ -2,7 +2,7 @@ module GuessWord exposing (..)
 
 import Json.Decode as JD exposing (Decoder, string, map2, field)
 import Html.Attributes exposing (..)
-import Html exposing (Html, div, text, input)
+import Html exposing (..)
 import Html.Events as HE exposing (onInput)
 import Random.List
 import Browser
@@ -137,12 +137,16 @@ view model =
               [ text "Looking for a definition..." ]
     else
         div []
-          [ viewHelper model.definitions
-          , input [ placeholder "Did you guess the word?", value model.userInput, onInput User] []
-          , div [] [ text (checkInput model.userInput model.word) ]
-          , input [ type_ "checkbox", HE.onCheck CheckBox, checked model.checkBox ] []
-          , text (revealWord model.checkBox model.word)
-          ]
+        [ol[]
+            [ viewHelper model.definitions
+            ,div[]
+              [p [ style "text-align" "center" ][strong [][text "The answer is: "]
+              , input [ placeholder "Did you guess the word?", value model.userInput, onInput User] []
+              , div [] [ text (checkInput model.userInput model.word) ]
+              , p [ style "text-align" "left" ][input [ type_ "checkbox", HE.onCheck CheckBox, checked model.checkBox ] []
+              , text (revealWord model.checkBox model.word)] ]]
+            ]
+        ]
   else 
     div []
           [ text "An error occured..." ]
@@ -167,8 +171,11 @@ revealWord isChecked word =
 viewHelper : (List (List Meaning)) -> Html Msg
 viewHelper definitions =
   div []
-    [ text "Meaning:"
-    , div [] (List.map viewMeanings definitions)
+    [ul []
+      [ h2 [] [text "WORD GAME ^o^ !"]
+      , h3 [] [ text "Meaning:" ] 
+      , ul [] (List.map viewMeanings definitions)
+      ]
     ]
 
 viewMeanings : (List Meaning) -> Html Msg
@@ -179,13 +186,13 @@ viewMeanings meanings =
 viewMeaning : Meaning -> Html Msg
 viewMeaning meaning =
   div []
-    [ div [] [ text meaning.nature ]
-    , div [] (List.map viewDef meaning.definitions) 
+    [ div [] [ h5 [] [li[] [text meaning.nature]] ]
+    , div [] [ol[] (List.map viewDef meaning.definitions)] 
     ]
 
 viewDef : String -> Html Msg
 viewDef def =
-  div [] [ text def ]
+  li [] [ text def ]
 
         
 
