@@ -192,7 +192,7 @@ viewMeaning meaning =
 
 viewDef : String -> Html Msg
 viewDef def =
-  div [] [ text def ]
+  li [] [ text def ]
 
         
 
