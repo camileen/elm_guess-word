@@ -122,6 +122,12 @@ subscriptions _ =
 
 
 -- VIEW
+titleStyle : String -> String -> List(Attribute Msg)
+titleStyle color width =
+  [ style "background-color" color
+  , style "width" width
+  , style "padding" "5px"
+  ] 
 
 view : Model -> Html Msg
 view model =
@@ -136,29 +142,48 @@ view model =
             div []
               [ text "Looking for a definition..." ]
     else
-        div []
-        [ol[]
-            [ viewHelper model.definitions
-            ,div[]
-              [p [ style "text-align" "center" ][strong [][text "The answer is: "]
-              , input [ placeholder "Did you guess the word?", value model.userInput, onInput User] []
-              , div [] [ text (checkInput model.userInput model.word) ]
-              , p [ style "text-align" "left" ][input [ type_ "checkbox", HE.onCheck CheckBox, checked model.checkBox ] []
-              , text (revealWord model.checkBox model.word)] ]]
+      div 
+        [ style "background-color" "HoneyDew" ]
+        [ ul []
+            [ h1 [ style "text-align" "center" ] [text "================== WORD GAME ^o^ ! =================="]
+            , h2 
+                (titleStyle "MistyRose" "120px")
+                [ text "Meanings:" ] 
+            , viewHelper model.definitions
+            , p 
+                [ style "border-style" "dotted" 
+                , style "padding" "10px"
+                , style "width" "500px"
+                ]
+                [ strong [] [text "The answer is: "]
+                , input [ placeholder "Did you guess the word?", value model.userInput, onInput User ] []
+                , checkInput model.userInput model.word
+                ]
+            , div []
+                [ p [ style "text-align" "left" ] [ input [ type_ "checkbox", HE.onCheck CheckBox, checked model.checkBox ] []
+                , text (revealWord model.checkBox model.word)]
+                ]
             ]
         ]
+          
+        
   else 
     div []
           [ text "An error occured..." ]
 
-checkInput : String -> Word -> String
+checkInput : String -> Word -> Html Msg
 checkInput input word =
   if input == word then
-    "That's it!"
+    div 
+      [ style "color" "green" ]
+      [ text "That's it!" ]
   else if String.isEmpty input then
-    "Enter something, don't be scared!"
+    div []
+      [ text "Enter something, don't be scared!" ]
   else
-    "Wrong..."
+    div 
+      [ style "color" "red" ]
+      [ text "Wrong..." ]
 
 revealWord : Bool -> String -> String
 revealWord isChecked word =
@@ -171,11 +196,8 @@ revealWord isChecked word =
 viewHelper : (List (List Meaning)) -> Html Msg
 viewHelper definitions =
   div []
-    [ul []
-      [ h2 [] [text "WORD GAME ^o^ !"]
-      , h3 [] [ text "Meaning:" ] 
-      , ul [] (List.map viewMeanings definitions)
-      ]
+    [ ul []
+      (List.map viewMeanings definitions)
     ]
 
 viewMeanings : (List Meaning) -> Html Msg
@@ -186,7 +208,11 @@ viewMeanings meanings =
 viewMeaning : Meaning -> Html Msg
 viewMeaning meaning =
   div []
-    [ div [] [ h5 [] [li[] [text meaning.nature]] ]
+    [ div [] 
+        [ h3 
+            (titleStyle "Linen" "100px") 
+            [ li[] [ text meaning.nature ] ]
+        ]
     , div [] [ol[] (List.map viewDef meaning.definitions)] 
     ]
 
